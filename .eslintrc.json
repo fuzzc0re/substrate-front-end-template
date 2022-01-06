@@ -4,10 +4,7 @@
         "es2021": true,
         "jest": true
     },
-    "extends": [
-        "plugin:react/recommended",
-        "semistandard"
-    ],
+    "extends": ["plugin:react/recommended", "semistandard"],
     "parser": "@typescript-eslint/parser",
     "parserOptions": {
         "ecmaFeatures": {
@@ -16,13 +13,10 @@
         "ecmaVersion": 2021,
         "sourceType": "module"
     },
-    "plugins": [
-        "react",
-        "@typescript-eslint"
-    ],
+    "plugins": ["react", "@typescript-eslint"],
     "rules": {
         "no-use-before-define": "off",
-        "react/jsx-curly-spacing": [2, { "when": "always", "children": true }],
+        "react/jsx-curly-spacing": [2, { "when": "always", "children": false, "attributes": false }],
         "semi": [2, "always"]
     },
     "settings": {

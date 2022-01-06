@@ -57,6 +57,7 @@
     "eslint-plugin-promise": "^4.2.1 || ^5.0.0",
     "eslint-plugin-react": "^7.27.1",
     "gh-pages": "^3.2.3",
+    "prettier": "^2.5.1",
     "semistandard": "^16.0.0"
   },
   "engines": {
