@@ -8,11 +8,7 @@
   "bugs": {
     "url": "https://github.com/substrate-developer-hub/substrate-front-end-template/issues"
   },
-  "keywords": [
-    "substrate",
-    "substrate-ui",
-    "polkadot-js"
-  ],
+  "keywords": ["substrate", "substrate-ui", "polkadot-js"],
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
@@ -51,7 +47,6 @@
     "@typescript-eslint/eslint-plugin": "^5.8.0",
     "@typescript-eslint/parser": "^5.8.0",
     "eslint": "^7.12.1",
-    "eslint-config-prettier": "^8.3.0",
     "eslint-config-standard": "^16.0.3",
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-jest": "^25.3.0",
@@ -67,11 +62,7 @@
     "npm": ">=7"
   },
   "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
+    "production": [">0.2%", "not dead", "not op_mini all"],
     "development": [
       "last 1 chrome version",
       "last 1 firefox version",
