@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { FC, useEffect, useState } from 'react';
 import { Card, Icon, Grid } from 'semantic-ui-react';
 
 import { useSubstrate } from './substrate-lib';
 
-function Main (props) {
+const Main: FC = props => {
   const { api, socket } = useSubstrate();
-  const [nodeInfo, setNodeInfo] = useState<any>(({}));
+  const [nodeInfo, setNodeInfo] = useState<any>({});
 
   useEffect(() => {
     const getInfo = async () => {
@@ -27,27 +27,33 @@ function Main (props) {
     <Grid.Column>
       <Card>
         <Card.Content>
-          <Card.Header>{ nodeInfo.nodeName }</Card.Header>
+          <Card.Header>{nodeInfo.nodeName}</Card.Header>
           <Card.Meta>
-            <span>{ nodeInfo.chain }</span>
+            <span>{nodeInfo.chain}</span>
           </Card.Meta>
-          <Card.Description>{ socket }</Card.Description>
+          <Card.Description>{socket}</Card.Description>
         </Card.Content>
         <Card.Content extra>
-          <Icon name='setting' />v{ nodeInfo.nodeVersion }
+          <Icon name='setting' />v{nodeInfo.nodeVersion}
         </Card.Content>
       </Card>
     </Grid.Column>
   );
-}
+};
 
-export default function NodeInfo (props) {
+const NodeInfo: FC = props => {
   const { api } = useSubstrate();
-  return api.rpc &&
+  if (
+    api.rpc &&
     api.rpc.system &&
     api.rpc.system.chain &&
     api.rpc.system.name &&
     api.rpc.system.version
-    ? <Main { ...props } />
-    : null;
-}
+  ) {
+    return <Main {...props} />;
+  } else {
+    return null;
+  }
+};
+
+export default NodeInfo;

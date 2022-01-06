@@ -1,4 +1,10 @@
-import React, { FC, useReducer, useContext, createContext, Dispatch } from 'react';
+import React, {
+  FC,
+  useReducer,
+  useContext,
+  createContext,
+  Dispatch
+} from 'react';
 import jsonrpc from '@polkadot/types/interfaces/jsonrpc';
 import { KeyringInstance } from '@polkadot/keyring/types';
 import queryString from 'query-string';
@@ -113,7 +119,10 @@ const loadAccounts = (state: State, dispatch: Dispatch<Action>) => {
         address,
         meta: { ...meta, name: `${meta.name} (${meta.source})` }
       }));
-      keyring.loadAll({ isDevelopment: config.DEVELOPMENT_KEYRING }, allAccounts);
+      keyring.loadAll(
+        { isDevelopment: config.DEVELOPMENT_KEYRING },
+        allAccounts
+      );
       dispatch({ type: 'SET_KEYRING', payload: keyring });
     } catch (e) {
       console.error(e);
@@ -144,14 +153,21 @@ const SubstrateContextProvider: FC<SubstrateContextProviderTypes> = props => {
   const initState = { ...INIT_STATE };
   const neededPropNames = ['socket'];
   neededPropNames.forEach(key => {
-    initState[key] = typeof props[key] === 'undefined' ? initState[key] : (props[key] as State['apiState']);
+    initState[key] =
+      typeof props[key] === 'undefined'
+        ? initState[key]
+        : (props[key] as State['apiState']);
   });
 
   const [state, dispatch] = useReducer(reducer, initState);
   connect(state, dispatch);
   loadAccounts(state, dispatch);
 
-  return <SubstrateContext.Provider value={state}>{props.children}</SubstrateContext.Provider>;
+  return (
+    <SubstrateContext.Provider value={state}>
+      {props.children}
+    </SubstrateContext.Provider>
+  );
 };
 
 const useSubstrate = () => useContext<State>(SubstrateContext);

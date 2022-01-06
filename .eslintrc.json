@@ -16,7 +16,10 @@
     "plugins": ["react", "@typescript-eslint"],
     "rules": {
         "no-use-before-define": "off",
-        "react/jsx-curly-spacing": [2, { "when": "always", "children": false, "attributes": false }],
+        "react/jsx-curly-spacing": [
+            2,
+            { "when": "always", "children": false, "attributes": false }
+        ],
         "semi": [2, "always"]
     },
     "settings": {

@@ -1,6 +1,13 @@
 import React, { FC, useState, createRef } from 'react';
 import { KeyringPair } from '@polkadot/keyring/types';
-import { Container, Dimmer, Loader, Grid, Sticky, Message } from 'semantic-ui-react';
+import {
+  Container,
+  Dimmer,
+  Loader,
+  Grid,
+  Sticky,
+  Message
+} from 'semantic-ui-react';
 import 'semantic-ui-css/semantic.min.css';
 
 import { SubstrateContextProvider, useSubstrate } from './substrate-lib';
@@ -18,9 +25,14 @@ import Transfer from './transfer';
 import Upgrade from './upgrade';
 
 const Main: FC = () => {
-  const [accountAddress, setAccountAddress] = useState<string | Uint8Array>(null);
+  const [accountAddress, setAccountAddress] = useState<string | Uint8Array>(
+    null
+  );
   const { apiState, keyring, keyringState, apiError } = useSubstrate();
-  const accountPair: KeyringPair = accountAddress && keyringState === 'READY' && keyring.getPair(accountAddress);
+  const accountPair: KeyringPair =
+    accountAddress &&
+    keyringState === 'READY' &&
+    keyring.getPair(accountAddress);
 
   const loader = (text: string) => (
     <Dimmer active>
@@ -45,7 +57,9 @@ const Main: FC = () => {
   } else if (apiState !== 'READY') return loader('Connecting to Substrate');
 
   if (keyringState !== 'READY') {
-    return loader("Loading accounts (please review any extension's authorization)");
+    return loader(
+      "Loading accounts (please review any extension's authorization)"
+    );
   }
 
   const contextRef: React.RefObject<HTMLInputElement> = createRef();

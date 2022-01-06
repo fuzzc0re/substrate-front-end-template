@@ -1,9 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React, { FC, ReactPropTypes, useEffect, useState } from 'react';
 import { Statistic, Grid, Card, Icon } from 'semantic-ui-react';
 
 import { useSubstrate } from './substrate-lib';
 
-function Main ({ finalized }: { finalized: any }) {
+type BlockNumberType = {
+  props?: ReactPropTypes;
+  finalized?: boolean;
+};
+
+const Main: FC<BlockNumberType> = ({ finalized }) => {
   const { api } = useSubstrate();
   const [blockNumber, setBlockNumber] = useState(0);
   const [blockNumberTimer, setBlockNumberTimer] = useState(0);
@@ -41,24 +46,29 @@ function Main ({ finalized }: { finalized: any }) {
       <Card>
         <Card.Content textAlign='center'>
           <Statistic
-            label={ (finalized ? 'Finalized' : 'Current') + ' Block' }
-            value={ blockNumber }
+            label={(finalized ? 'Finalized' : 'Current') + ' Block'}
+            value={blockNumber}
           />
         </Card.Content>
         <Card.Content extra>
-          <Icon name='time' /> { blockNumberTimer }
+          <Icon name='time' /> {blockNumberTimer}
         </Card.Content>
       </Card>
     </Grid.Column>
   );
-}
+};
 
-export default function BlockNumber (props) {
+const BlockNumber: FC<BlockNumberType> = props => {
   const { api } = useSubstrate();
-  return api.derive &&
+  if (
     api.derive.chain &&
     api.derive.chain.bestNumber &&
     api.derive.chain.bestNumberFinalized
-    ? <Main { ...props } />
-    : null;
-}
+  ) {
+    return <Main {...props} />;
+  } else {
+    return null;
+  }
+};
+
+export default BlockNumber;

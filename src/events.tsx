@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { FC, useEffect, useState } from 'react';
 import { Feed, Grid, Button } from 'semantic-ui-react';
 
 import { useSubstrate } from './substrate-lib';
@@ -11,7 +11,7 @@ const FILTERED_EVENTS = [
 const eventName = ev => `${ev.section}:${ev.method}`;
 const eventParams = ev => JSON.stringify(ev.data);
 
-function Main ({ feedMaxHeight = 250 }: { feedMaxHeight: number}) {
+const Main: FC<{ feedMaxHeight?: number }> = ({ feedMaxHeight = 250 }) => {
   const { api } = useSubstrate();
   const [eventFeed, setEventFeed] = useState([]);
 
@@ -33,12 +33,15 @@ function Main ({ feedMaxHeight = 250 }: { feedMaxHeight: number}) {
 
           if (FILTERED_EVENTS.includes(evNamePhase)) return;
 
-          setEventFeed(e => [{
-            key: keyNum,
-            icon: 'bell',
-            summary: evName,
-            content: evParams
-          }, ...e]);
+          setEventFeed(e => [
+            {
+              key: keyNum,
+              icon: 'bell',
+              summary: evName,
+              content: evParams
+            },
+            ...e
+          ]);
 
           keyNum += 1;
         });
@@ -50,24 +53,32 @@ function Main ({ feedMaxHeight = 250 }: { feedMaxHeight: number}) {
   }, [api.query.system]);
 
   return (
-    <Grid.Column width={ 8 }>
-      <h1 style={ { float: 'left' } }>Events</h1>
+    <Grid.Column width={8}>
+      <h1 style={{ float: 'left' }}>Events</h1>
       <Button
-        basic circular
+        basic
+        circular
         size='mini'
         color='grey'
         floated='right'
         icon='erase'
-        onClick={ _ => setEventFeed([]) }
+        onClick={_ => setEventFeed([])}
       />
-      <Feed style={ { clear: 'both', overflow: 'auto', maxHeight: feedMaxHeight } } events={ eventFeed } />
+      <Feed
+        style={{ clear: 'both', overflow: 'auto', maxHeight: feedMaxHeight }}
+        events={eventFeed}
+      />
     </Grid.Column>
   );
-}
+};
 
-export default function Events (props) {
+const Events: FC = props => {
   const { api } = useSubstrate();
-  return api.query && api.query.system && api.query.system.events
-    ? <Main { ...props } />
-    : null;
-}
+  if (api.query && api.query.system && api.query.system.events) {
+    return <Main {...props} />;
+  } else {
+    return null;
+  }
+};
+
+export default Events;

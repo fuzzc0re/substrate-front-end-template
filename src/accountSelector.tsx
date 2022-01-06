@@ -1,7 +1,21 @@
-import React, { FC, useState, useEffect, Dispatch, SetStateAction } from 'react';
+import React, {
+  FC,
+  useState,
+  useEffect,
+  Dispatch,
+  SetStateAction
+} from 'react';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 
-import { Menu, Button, Dropdown, Container, Icon, Image, Label } from 'semantic-ui-react';
+import {
+  Menu,
+  Button,
+  Dropdown,
+  Container,
+  Icon,
+  Image,
+  Label
+} from 'semantic-ui-react';
 
 import { useSubstrate } from './substrate-lib';
 
@@ -22,7 +36,8 @@ const Main: FC<AccountSelectorType> = ({ setAccountAddress }) => {
     icon: 'user'
   }));
 
-  const initialAddress = keyringOptions.length > 0 ? keyringOptions[0].value : '';
+  const initialAddress =
+    keyringOptions.length > 0 ? keyringOptions[0].value : '';
 
   // Set the initial address
   useEffect(() => {
@@ -41,7 +56,11 @@ const Main: FC<AccountSelectorType> = ({ setAccountAddress }) => {
       return (
         <span>
           Add your account with the{' '}
-          <a target='_blank' rel='noopener noreferrer' href='https://github.com/polkadot-js/extension'>
+          <a
+            target='_blank'
+            rel='noopener noreferrer'
+            href='https://github.com/polkadot-js/extension'
+          >
             Polkadot JS Extension
           </a>
         </span>
@@ -62,12 +81,21 @@ const Main: FC<AccountSelectorType> = ({ setAccountAddress }) => {
     >
       <Container>
         <Menu.Menu>
-          <Image src={`${process.env.PUBLIC_URL}/assets/substrate-logo.png`} size='mini' />
+          <Image
+            src={`${process.env.PUBLIC_URL}/assets/substrate-logo.png`}
+            size='mini'
+          />
         </Menu.Menu>
         <Menu.Menu position='right' style={{ alignItems: 'center' }}>
           <AddAccountWithPolkadotExtension />
           <CopyToClipboard text={accountSelected}>
-            <Button basic circular size='large' icon='user' color={accountSelected ? 'green' : 'red'} />
+            <Button
+              basic
+              circular
+              size='large'
+              icon='user'
+              color={accountSelected ? 'green' : 'red'}
+            />
           </CopyToClipboard>
           <Dropdown
             search
@@ -87,7 +115,9 @@ const Main: FC<AccountSelectorType> = ({ setAccountAddress }) => {
   );
 };
 
-const BalanceAnnotation: FC<{ accountSelected: any }> = ({ accountSelected }) => {
+const BalanceAnnotation: FC<{ accountSelected: any }> = ({
+  accountSelected
+}) => {
   const { api } = useSubstrate();
   const [accountBalance, setAccountBalance] = useState(0);
 

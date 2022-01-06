@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { FC, useEffect, useState } from 'react';
 import { Grid, Modal, Button, Card } from 'semantic-ui-react';
 
 import { useSubstrate } from './substrate-lib';
 
-function Main (props) {
+const Main: FC = () => {
   const { api } = useSubstrate();
   const [metadata, setMetadata] = useState({ data: null, version: null });
 
@@ -25,16 +25,16 @@ function Main (props) {
         <Card.Content>
           <Card.Header>Metadata</Card.Header>
           <Card.Meta>
-            <span>v{ metadata.version }</span>
+            <span>v{metadata.version}</span>
           </Card.Meta>
         </Card.Content>
         <Card.Content extra>
-          <Modal trigger={ <Button>Show Metadata</Button> }>
+          <Modal trigger={<Button>Show Metadata</Button>}>
             <Modal.Header>Runtime Metadata</Modal.Header>
             <Modal.Content scrolling>
               <Modal.Description>
                 <pre>
-                  <code>{ JSON.stringify(metadata.data, null, 2) }</code>
+                  <code>{JSON.stringify(metadata.data, null, 2)}</code>
                 </pre>
               </Modal.Description>
             </Modal.Content>
@@ -43,11 +43,15 @@ function Main (props) {
       </Card>
     </Grid.Column>
   );
-}
+};
 
-export default function Metadata (props) {
+const Metadata: FC = props => {
   const { api } = useSubstrate();
-  return api.rpc && api.rpc.state && api.rpc.state.getMetadata
-    ? <Main { ...props } />
-    : null;
-}
+  if (api.rpc && api.rpc.state && api.rpc.state.getMetadata) {
+    return <Main {...props} />;
+  } else {
+    return null;
+  }
+};
+
+export default Metadata;

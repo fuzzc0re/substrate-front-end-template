@@ -15,4 +15,4 @@ describe('App Test Suite', () => {
 });
 
 // Empty export is required if there are no imports
-export { };
+export {};

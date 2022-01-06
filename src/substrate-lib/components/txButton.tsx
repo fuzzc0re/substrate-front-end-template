@@ -1,12 +1,50 @@
-import React, { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
-import { Button } from 'semantic-ui-react';
+import React, { FC, useState, useEffect } from 'react';
+import { KeyringPair } from '@polkadot/keyring/types';
+import { Button, SemanticCOLORS } from 'semantic-ui-react';
 import { web3FromSource } from '@polkadot/extension-dapp';
 
 import { useSubstrate } from '..';
 import utils from '../utils';
 
-function TxButton ({
+interface ITxButton {
+  accountPair: KeyringPair;
+  label?:
+    | 'Query'
+    | 'Submit'
+    | 'Store Something'
+    | 'Upgrade'
+    | 'Unsigned'
+    | 'Signed'
+    | 'SUDO';
+  setStatus?: any;
+  color?:
+    | 'facebook'
+    | 'google plus'
+    | 'instagram'
+    | 'linkedin'
+    | 'twitter'
+    | 'vk'
+    | 'youtube'
+    | SemanticCOLORS;
+  style?: any;
+  type?:
+    | 'QUERY'
+    | 'RPC'
+    | 'SIGNED-TX'
+    | 'UNSIGNED-TX'
+    | 'SUDO-TX'
+    | 'UNCHECKED-SUDO-TX'
+    | 'CONSTANT';
+  attrs: {
+    palletRpc: string;
+    callable: string;
+    inputParams: any[];
+    paramFields: any[];
+  };
+  disabled?: boolean;
+}
+
+const TxButton: FC<ITxButton> = ({
   accountPair = null,
   label,
   setStatus,
@@ -15,16 +53,7 @@ function TxButton ({
   type = 'QUERY',
   attrs = null,
   disabled = false
-}: {
-  accountPair: any,
-  label: any,
-  setStatus: any,
-  color?: any,
-  style?: any,
-  type: any,
-  attrs: any,
-  disabled?: any
-}) {
+}) => {
   // Hooks
   const { api } = useSubstrate();
   const [unsub, setUnsub] = useState(null);
@@ -42,7 +71,9 @@ function TxButton ({
 
   const loadSudoKey = () => {
     (async function () {
-      if (!api || !api.query.sudo) { return; }
+      if (!api || !api.query.sudo) {
+        return;
+      }
       const sudoKey = await api.query.sudo.key();
       sudoKey.isEmpty ? setSudoKey(null) : setSudoKey(sudoKey.toString());
     })();
@@ -53,13 +84,14 @@ function TxButton ({
   const getFromAcct = async () => {
     const {
       address,
+      // types here need to be more specific
       meta: { source, isInjected }
     } = accountPair;
     let fromAcct;
 
     // signer is from Polkadot-js browser extension
     if (isInjected) {
-      const injected = await web3FromSource(source);
+      const injected = await web3FromSource(source as string);
       fromAcct = address;
       api.setSigner(injected.signer);
     } else {
@@ -85,17 +117,21 @@ function TxButton ({
       ? api.tx.sudo.sudo(api.tx[palletRpc][callable](...transformed))
       : api.tx.sudo.sudo(api.tx[palletRpc][callable]());
 
-    const unsub = txExecute.signAndSend(fromAcct, txResHandler)
+    const unsub = txExecute
+      .signAndSend(fromAcct, txResHandler)
       .catch(txErrHandler);
     setUnsub(() => unsub);
   };
 
   const uncheckedSudoTx = async () => {
     const fromAcct = await getFromAcct();
-    const txExecute =
-      api.tx.sudo.sudoUncheckedWeight(api.tx[palletRpc][callable](...inputParams), 0);
+    const txExecute = api.tx.sudo.sudoUncheckedWeight(
+      api.tx[palletRpc][callable](...inputParams),
+      0
+    );
 
-    const unsub = txExecute.signAndSend(fromAcct, txResHandler)
+    const unsub = txExecute
+      .signAndSend(fromAcct, txResHandler)
       .catch(txErrHandler);
     setUnsub(() => unsub);
   };
@@ -109,7 +145,8 @@ function TxButton ({
       ? api.tx[palletRpc][callable](...transformed)
       : api.tx[palletRpc][callable]();
 
-    const unsub = await txExecute.signAndSend(fromAcct, txResHandler)
+    const unsub = await txExecute
+      .signAndSend(fromAcct, txResHandler)
       .catch(txErrHandler);
     setUnsub(() => unsub);
   };
@@ -121,8 +158,7 @@ function TxButton ({
       ? api.tx[palletRpc][callable](...transformed)
       : api.tx[palletRpc][callable]();
 
-    const unsub = await txExecute.send(txResHandler)
-      .catch(txErrHandler);
+    const unsub = await txExecute.send(txResHandler).catch(txErrHandler);
     setUnsub(() => unsub);
   };
 
@@ -131,13 +167,21 @@ function TxButton ({
 
   const query = async () => {
     const transformed = transformParams(paramFields, inputParams);
-    const unsub = await api.query[palletRpc][callable](...transformed, queryResHandler);
+    const unsub = await api.query[palletRpc][callable](
+      ...transformed,
+      queryResHandler
+    );
     setUnsub(() => unsub);
   };
 
   const rpc = async () => {
-    const transformed = transformParams(paramFields, inputParams, { emptyAsNull: false });
-    const unsub = await api.rpc[palletRpc][callable](...transformed, queryResHandler);
+    const transformed = transformParams(paramFields, inputParams, {
+      emptyAsNull: false
+    });
+    const unsub = await api.rpc[palletRpc][callable](
+      ...transformed,
+      queryResHandler
+    );
     setUnsub(() => unsub);
   };
 
@@ -153,7 +197,6 @@ function TxButton ({
     }
 
     setStatus('Sending...');
-
     (isSudo() && sudoTx()) ||
       (isUncheckedSudo() && uncheckedSudoTx()) ||
       (isSigned() && signedTx()) ||
@@ -163,38 +206,57 @@ function TxButton ({
       (isConstant() && constant());
   };
 
-  const transformParams = (paramFields, inputParams, opts = { emptyAsNull: true }) => {
+  const transformParams = (
+    paramFields,
+    inputParams,
+    opts = { emptyAsNull: true }
+  ) => {
     // if `opts.emptyAsNull` is true, empty param value will be added to res as `null`.
     //   Otherwise, it will not be added
     const paramVal = inputParams.map(inputParam => {
       // To cater the js quirk that `null` is a type of `object`.
-      if (typeof inputParam === 'object' && inputParam !== null && typeof inputParam.value === 'string') {
+      if (
+        typeof inputParam === 'object' &&
+        inputParam !== null &&
+        typeof inputParam.value === 'string'
+      ) {
         return inputParam.value.trim();
       } else if (typeof inputParam === 'string') {
         return inputParam.trim();
       }
       return inputParam;
     });
-    const params = paramFields.map((field, ind) => ({ ...field, value: paramVal[ind] || null }));
+    const params = paramFields.map((field, ind) => ({
+      ...field,
+      value: paramVal[ind] || null
+    }));
 
     return params.reduce((memo, { type = 'string', value }) => {
-      if (value == null || value === '') return (opts.emptyAsNull ? [...memo, null] : memo);
+      if (value == null || value === '') {
+        return opts.emptyAsNull ? [...memo, null] : memo;
+      }
 
       let converted = value;
 
       // Deal with a vector
       if (type.indexOf('Vec<') >= 0) {
         converted = converted.split(',').map(e => e.trim());
-        converted = converted.map(single => isNumType(type)
-          ? (single.indexOf('.') >= 0 ? Number.parseFloat(single) : Number.parseInt(single))
-          : single
+        converted = converted.map(single =>
+          isNumType(type)
+            ? single.indexOf('.') >= 0
+              ? Number.parseFloat(single)
+              : Number.parseInt(single)
+            : single
         );
         return [...memo, converted];
       }
 
       // Deal with a single value
       if (isNumType(type)) {
-        converted = converted.indexOf('.') >= 0 ? Number.parseFloat(converted) : Number.parseInt(converted);
+        converted =
+          converted.indexOf('.') >= 0
+            ? Number.parseFloat(converted)
+            : Number.parseInt(converted);
       }
       return [...memo, converted];
     }, []);
@@ -204,12 +266,18 @@ function TxButton ({
     utils.paramConversion.num.some(el => type.indexOf(el) >= 0);
 
   const allParamsFilled = () => {
-    if (paramFields.length === 0) { return true; }
+    if (paramFields.length === 0) {
+      return true;
+    }
 
     return paramFields.every((paramField, ind) => {
       const param = inputParams[ind];
-      if (paramField.optional) { return true; }
-      if (param == null) { return false; }
+      if (paramField.optional) {
+        return true;
+      }
+      if (param == null) {
+        return false;
+      }
 
       const value = typeof param === 'object' ? param.value : param;
       return value !== null && value !== '';
@@ -217,65 +285,42 @@ function TxButton ({
   };
 
   const isSudoer = acctPair => {
-    if (!sudoKey || !acctPair) { return false; }
+    if (!sudoKey || !acctPair) {
+      return false;
+    }
     return acctPair.address === sudoKey;
   };
 
   return (
     <Button
       basic
-      color={ color }
-      style={ style }
+      color={color}
+      style={style}
       type='submit'
-      onClick={ transaction }
-      disabled={ disabled || !palletRpc || !callable || !allParamsFilled() ||
-        ((isSudo() || isUncheckedSudo()) && !isSudoer(accountPair)) }
+      onClick={transaction}
+      disabled={
+        disabled ||
+        !palletRpc ||
+        !callable ||
+        !allParamsFilled() ||
+        ((isSudo() || isUncheckedSudo()) && !isSudoer(accountPair))
+      }
     >
-      { label }
+      {label}
     </Button>
   );
-}
-
-// prop type checking
-TxButton.propTypes = {
-  accountPair: PropTypes.object,
-  setStatus: PropTypes.func.isRequired,
-  type: PropTypes.oneOf([
-    'QUERY', 'RPC', 'SIGNED-TX', 'UNSIGNED-TX', 'SUDO-TX', 'UNCHECKED-SUDO-TX',
-    'CONSTANT']).isRequired,
-  attrs: PropTypes.shape({
-    palletRpc: PropTypes.string,
-    callable: PropTypes.string,
-    inputParams: PropTypes.array,
-    paramFields: PropTypes.array
-  }).isRequired
 };
 
-function TxGroupButton (props) {
+const TxGroupButton: FC<ITxButton> = props => {
   return (
     <Button.Group>
-      <TxButton
-        label='Unsigned'
-        type='UNSIGNED-TX'
-        color='grey'
-        { ...props }
-      />
+      <TxButton label='Unsigned' type='UNSIGNED-TX' color='grey' {...props} />
       <Button.Or />
-      <TxButton
-        label='Signed'
-        type='SIGNED-TX'
-        color='blue'
-        { ...props }
-      />
+      <TxButton label='Signed' type='SIGNED-TX' color='blue' {...props} />
       <Button.Or />
-      <TxButton
-        label='SUDO'
-        type='SUDO-TX'
-        color='red'
-        { ...props }
-      />
+      <TxButton label='SUDO' type='SUDO-TX' color='red' {...props} />
     </Button.Group>
   );
-}
+};
 
 export { TxButton, TxGroupButton };

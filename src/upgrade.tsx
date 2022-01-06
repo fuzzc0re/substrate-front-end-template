@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { FC, useState } from 'react';
+import { KeyringPair } from '@polkadot/keyring/types';
 import { Form, Input, Grid } from 'semantic-ui-react';
 import { TxButton } from './substrate-lib/components';
 
-export default function Main ({ accountPair }: {accountPair: any}) {
+const Main: FC<{ accountPair: KeyringPair }> = ({ accountPair }) => {
   const [status, setStatus] = useState('');
   const [proposal, setProposal] = useState({});
 
@@ -23,7 +24,7 @@ export default function Main ({ accountPair }: {accountPair: any}) {
   };
 
   return (
-    <Grid.Column width={ 8 }>
+    <Grid.Column width={8}>
       <h1>Upgrade Runtime</h1>
       <Form>
         <Form.Field>
@@ -32,25 +33,27 @@ export default function Main ({ accountPair }: {accountPair: any}) {
             id='file'
             label='Wasm File'
             accept='.wasm'
-            onChange={ e => handleFileChosen(e.target.files[0]) }
+            onChange={e => handleFileChosen(e.target.files[0])}
           />
         </Form.Field>
-        <Form.Field style={ { textAlign: 'center' } }>
+        <Form.Field style={{ textAlign: 'center' }}>
           <TxButton
-            accountPair={ accountPair }
+            accountPair={accountPair}
             label='Upgrade'
             type='UNCHECKED-SUDO-TX'
-            setStatus={ setStatus }
-            attrs={ {
+            setStatus={setStatus}
+            attrs={{
               palletRpc: 'system',
               callable: 'setCode',
               inputParams: [proposal],
               paramFields: [true]
-            } }
+            }}
           />
         </Form.Field>
-        <div style={ { overflowWrap: 'break-word' } }>{ status }</div>
+        <div style={{ overflowWrap: 'break-word' }}>{status}</div>
       </Form>
     </Grid.Column>
   );
-}
+};
+
+export default Main;
